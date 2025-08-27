@@ -21,31 +21,34 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    // Criar reserva via JSON
     @PostMapping
-    public ResponseEntity<?> createReservation(@RequestParam UUID bookId,
-                                               @RequestParam UUID userId) {
+    public ResponseEntity<?> createReservation(@RequestBody ReservationDTO dto) {
         try {
-            Reservation reservation = reservationService.createReservation(bookId, userId);
+            Reservation reservation = reservationService.createReservation(dto.getBookId(), dto.getUserId());
             return ResponseEntity.ok(ReservationMapper.toDTO(reservation));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
+    // Listar reservas ativas
     @GetMapping("/active")
     public List<ReservationDTO> getActiveReservations() {
         return reservationService.getActiveReservations()
-                .stream().map(ReservationMapper::toDTO).collect(Collectors.toList());
+                .stream()
+                .map(ReservationMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // Cancelar reserva
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelReservation(@PathVariable UUID id) {
+    public ResponseEntity<?> cancelReservation(@PathVariable("id") UUID id) {
         try {
             reservationService.cancelReservation(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok("Reservation canceled successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }

@@ -28,13 +28,13 @@ public class ReservationService {
     public Reservation createReservation(UUID bookId, UUID userId) {
         Book book = bookService.getBookById(bookId)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found"));
-
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (book.isAvailable()) {
-            throw new IllegalArgumentException("Book is available, no need to reserve");
+        if (!book.isAvailable()) {
+            throw new IllegalArgumentException("Book is not available for reservation");
         }
+
 
         Reservation reservation = new Reservation();
         reservation.setBook(book);
@@ -44,6 +44,7 @@ public class ReservationService {
 
         return reservationRepository.save(reservation);
     }
+
 
     public List<Reservation> getActiveReservations() {
         return reservationRepository.findAll()
